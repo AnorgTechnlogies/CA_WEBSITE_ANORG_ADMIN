@@ -7,13 +7,7 @@ const initialState = {
   loading: false,
   error: null,
   message: null,
-  documents: {
-    gst: null,
-    it: null,
-    kaamgar: null,
-    royalty: null,
-    insurance: null
-  }
+  documents: { gst: null, it: null, kaamgar: null, royalty: null, insurance: null },
 };
 
 const adminDocumentsSlice = createSlice({
@@ -41,29 +35,20 @@ const adminDocumentsSlice = createSlice({
     },
     clearMessage(state) {
       state.message = null;
-    }
-  }
+    },
+  },
 });
 
 // Action creators for document updates
 export const updateGSTDocument = (id, documentData) => async (dispatch) => {
   try {
     dispatch(adminDocumentsSlice.actions.documentUpdateRequest());
-    
-    const config = {
-      headers: { "Content-Type": "multipart/form-data" }
-    };
-    
-    const response = await axios.patch(
-      `${BASE_URL}/api/admin/updateGSTDocumentByAdmin/${id}`,
-      documentData,
-      config
-    );
-    
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const response = await axios.patch(`${BASE_URL}/api/admin/updateGSTDocumentByAdmin/${id}`, documentData, config);
     dispatch(adminDocumentsSlice.actions.documentUpdateSuccess({
       type: 'gst',
       message: response.data.message,
-      result: response.data.result
+      result: response.data.result,
     }));
   } catch (error) {
     dispatch(adminDocumentsSlice.actions.documentUpdateFailed(
@@ -75,21 +60,12 @@ export const updateGSTDocument = (id, documentData) => async (dispatch) => {
 export const updateITDocument = (id, documentData) => async (dispatch) => {
   try {
     dispatch(adminDocumentsSlice.actions.documentUpdateRequest());
-    
-    const config = {
-      headers: { "Content-Type": "multipart/form-data" }
-    };
-    
-    const response = await axios.patch(
-      `${BASE_URL}/api/admin/updatITDocumentByAdmin/${id}`,
-      documentData,
-      config
-    );
-    
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const response = await axios.patch(`${BASE_URL}/api/admin/updatITDocumentByAdmin/${id}`, documentData, config);
     dispatch(adminDocumentsSlice.actions.documentUpdateSuccess({
       type: 'it',
       message: response.data.message,
-      result: response.data.result
+      result: response.data.result,
     }));
   } catch (error) {
     dispatch(adminDocumentsSlice.actions.documentUpdateFailed(
@@ -101,21 +77,12 @@ export const updateITDocument = (id, documentData) => async (dispatch) => {
 export const updateKaamgarDocument = (id, documentData) => async (dispatch) => {
   try {
     dispatch(adminDocumentsSlice.actions.documentUpdateRequest());
-    
-    const config = {
-      headers: { "Content-Type": "multipart/form-data" }
-    };
-    
-    const response = await axios.patch(
-      `${BASE_URL}/api/admin/updateKaamgarDocumentByAdmin/${id}`,
-      documentData,
-      config
-    );
-    
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const response = await axios.patch(`${BASE_URL}/api/admin/updateKaamgarDocumentByAdmin/${id}`, documentData, config);
     dispatch(adminDocumentsSlice.actions.documentUpdateSuccess({
       type: 'kaamgar',
       message: response.data.message,
-      result: response.data.result
+      result: response.data.result,
     }));
   } catch (error) {
     dispatch(adminDocumentsSlice.actions.documentUpdateFailed(
@@ -127,21 +94,12 @@ export const updateKaamgarDocument = (id, documentData) => async (dispatch) => {
 export const updateRoyaltyDocument = (id, documentData) => async (dispatch) => {
   try {
     dispatch(adminDocumentsSlice.actions.documentUpdateRequest());
-    
-    const config = {
-      headers: { "Content-Type": "multipart/form-data" }
-    };
-    
-    const response = await axios.patch(
-      `${BASE_URL}/api/admin/updateRoyaltyDocumentByAdmin/${id}`,
-      documentData,
-      config
-    );
-    
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const response = await axios.patch(`${BASE_URL}/api/admin/updateRoyaltyDocumentByAdmin/${id}`, documentData, config);
     dispatch(adminDocumentsSlice.actions.documentUpdateSuccess({
       type: 'royalty',
       message: response.data.message,
-      result: response.data.result
+      result: response.data.result,
     }));
   } catch (error) {
     dispatch(adminDocumentsSlice.actions.documentUpdateFailed(
@@ -153,21 +111,12 @@ export const updateRoyaltyDocument = (id, documentData) => async (dispatch) => {
 export const updateInsuranceDocument = (id, documentData) => async (dispatch) => {
   try {
     dispatch(adminDocumentsSlice.actions.documentUpdateRequest());
-    
-    const config = {
-      headers: { "Content-Type": "multipart/form-data" }
-    };
-    
-    const response = await axios.patch(
-      `${BASE_URL}/api/admin/updateInsuranceDocumentByAdmin/${id}`,
-      documentData,
-      config
-    );
-    
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const response = await axios.patch(`${BASE_URL}/api/admin/updateInsuranceDocumentByAdmin/${id}`, documentData, config);
     dispatch(adminDocumentsSlice.actions.documentUpdateSuccess({
       type: 'insurance',
       message: response.data.message,
-      result: response.data.result
+      result: response.data.result,
     }));
   } catch (error) {
     dispatch(adminDocumentsSlice.actions.documentUpdateFailed(
