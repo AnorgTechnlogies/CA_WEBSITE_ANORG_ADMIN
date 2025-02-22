@@ -1,3 +1,4 @@
+// ViewDeductionRecord.jsx
 import { Card, CardHeader, CardBody, Typography, Input, Button, Select, Option, Switch } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -163,7 +164,7 @@ export function ViewDeductionRecord() {
         break;
       case "insurance":
         entries = insuranceEntries;
-        columns = ["Date", "Insurance No", "Amount", "Status", "Document", "Upload Receipt"];
+        columns = ["Date", "Amount", "Status", "Document", "Upload Receipt"];
         uploadHandler = updateInsuranceDocument;
         break;
       case "kamgar":
@@ -193,7 +194,7 @@ export function ViewDeductionRecord() {
           <thead>
             <tr>
               {columns.map((header) => (
-                <th key={header} className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
+                <th key={header} className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">
                   {header}
                 </th>
               ))}
@@ -201,7 +202,7 @@ export function ViewDeductionRecord() {
           </thead>
           <tbody>
             {entries.map((entry, index) => (
-              <tr key={index} className="even:bg-blue-gray-50/50">
+              <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                 <td className="p-4">{new Date(entry.date).toLocaleDateString()}</td>
                 {formType === "gst" && (
                   <>
@@ -214,7 +215,6 @@ export function ViewDeductionRecord() {
                 )}
                 {formType === "insurance" && (
                   <>
-                    <td className="p-4">{entry.insuranceNo}</td>
                     <td className="p-4">₹{entry.amount}</td>
                   </>
                 )}
@@ -232,6 +232,14 @@ export function ViewDeductionRecord() {
                     checked={entry.seenByAdmin}
                     onChange={() => handleStatusToggle(entry._id, entry.seenByAdmin, formType)}
                     label={entry.seenByAdmin ? "Seen" : "Unseen"}
+                    color="green"
+                    className="h-full"
+                    containerProps={{
+                      className: "w-11 h-6",
+                    }}
+                    circleProps={{
+                      className: "before:bg-green-500",
+                    }}
                   />
                 </td>
                 <td className="p-4">
@@ -241,7 +249,7 @@ export function ViewDeductionRecord() {
                         href={entry.uploadDocumentbyAdmin.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-center"
+                        className="px-4 py-2 bg-[#02557a] text-white rounded hover:bg-[#023e59] transition text-center"
                       >
                         View Document
                       </a>
@@ -272,29 +280,29 @@ export function ViewDeductionRecord() {
   return (
     <div className="max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <Card className="shadow-xl rounded-xl">
-        <CardHeader variant="gradient" color="blue-gray" className="p-6 m-0">
+        <CardHeader variant="gradient" className="p-6 m-0 bg-[#02557a]">
           <Typography variant="h5" color="white" className="font-medium">
             Deduction Data Entry Form
           </Typography>
         </CardHeader>
         {(loading || uploadLoading) && (
           <div className="flex justify-center p-6">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#ee792d]"></div>
           </div>
         )}
         {singleGrampanchayat && (
           <div className="bg-white shadow-md rounded-lg p-6 m-6 border border-gray-200">
-            <h1>Add Deduction Type for Grampanchayat</h1>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-3">{singleGrampanchayat.data.grampanchayat}</h2>
-            <p className="text-gray-600 text-lg">
-              <span className="font-medium text-gray-700">Location:</span>{" "}
+            <h1 className="text-[#02557a] font-bold mb-2">Add Deduction Type for Grampanchayat</h1>
+            <h2 className="text-2xl font-semibold text-[#ee792d] mb-3">{singleGrampanchayat.data.grampanchayat}</h2>
+            <p className="text-gray-700 text-lg">
+              <span className="font-medium text-[#02557a]">Location:</span>{" "}
               {`${singleGrampanchayat.data.grampanchayat}, ${singleGrampanchayat.data.tahsil}, ${singleGrampanchayat.data.district}`}
             </p>
-            <p className="text-gray-600 text-lg">
-              <span className="font-medium text-gray-700">State:</span> {singleGrampanchayat.data.state}
+            <p className="text-gray-700 text-lg">
+              <span className="font-medium text-[#02557a]">State:</span> {singleGrampanchayat.data.state}
             </p>
-            <p className="text-gray-600 text-lg">
-              <span className="font-medium text-gray-700">Contact:</span> {singleGrampanchayat.data.gpMobileNumber}
+            <p className="text-gray-700 text-lg">
+              <span className="font-medium text-[#02557a]">Contact:</span> {singleGrampanchayat.data.gpMobileNumber}
             </p>
           </div>
         )}
@@ -305,13 +313,20 @@ export function ViewDeductionRecord() {
                 label="Select Deduction Type"
                 value={formType}
                 onChange={handleFormTypeChange}
-                className="border-gray-300 focus:ring-blue-500"
+                className="border-gray-300 focus:border-[#59b94f]"
+                labelProps={{
+                  className: "text-[#02557a]",
+                }}
+                menuProps={{
+                  className: "border border-[#ee792d] bg-white",
+                }}
+                color="green"
               >
-                <Option value="gst">GST</Option>
-                <Option value="insurance">Insurance</Option>
-                <Option value="kamgar">Kamgar</Option>
-                <Option value="iT">IT</Option>
-                <Option value="royalty">Royalty</Option>
+                <Option value="gst" className="hover:bg-gray-100">GST</Option>
+                <Option value="insurance" className="hover:bg-gray-100">Insurance</Option>
+                <Option value="kamgar" className="hover:bg-gray-100">Kamgar</Option>
+                <Option value="iT" className="hover:bg-gray-100">IT</Option>
+                <Option value="royalty" className="hover:bg-gray-100">Royalty</Option>
               </Select>
             </div>
           </form>
@@ -330,6 +345,11 @@ export function ViewDeductionRecord() {
         pauseOnHover
         theme="light"
         className="mt-16"
+        toastStyle={{ 
+          backgroundColor: '#ffffff',
+          color: '#000000',
+          borderLeft: '5px solid #ee792d'
+        }}
       />
     </div>
   );

@@ -10,7 +10,7 @@ import {
   GlobeAltIcon,
   HomeModernIcon
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Notifications, AddTehsilBlock } from "@/pages/dashboard";
+import { Home, Profile, AddTehsilBlock } from "@/pages/dashboard";
 import { ForgotPassword, SignIn, SignUp } from "@/pages/auth";
 import AllBlockTehsils from "./pages/dashboard/AllBlockTehsils";
 import AllGrampanchayat from "./pages/dashboard/AllGrampanchayat";

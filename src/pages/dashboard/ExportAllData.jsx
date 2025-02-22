@@ -10,8 +10,29 @@ import {
 import { ToastContainer, toast } from 'react-toastify';
 import { fetchAllGrampanchayats } from "../../store/slices/getDisplayAllData";
 import { fetchAllStaff } from "../../store/slices/getStaffSlice";
-import { exportDeductionsData } from "../../store/slices/exportDeductionsDataSlice"; // Import the new action
+import { exportDeductionsData } from "../../store/slices/exportDeductionsDataSlice";
 import { useNavigate } from "react-router-dom";
+
+// Custom styles for the buttons based on the provided colors
+const buttonStyles = {
+  exportDD: {
+    backgroundColor: "#02557a",
+    color: "white",
+  },
+  exportAgreement: {
+    backgroundColor: "#ee792d",
+    color: "white",
+  },
+  exportMR: {
+    backgroundColor: "#59b94f",
+    color: "white",
+  },
+  loadingBtn: {
+    backgroundColor: "#0277a9",
+    color: "white",
+    opacity: 0.8,
+  }
+};
 
 export function ExportAllData() {
   const dispatch = useDispatch();
@@ -54,51 +75,75 @@ export function ExportAllData() {
     }
   };
 
-  const handleViewAgreementData = (gpId) => {
-    navigate(`/dashboard/viewAgreementRecord/${gpId}`);
-  };
+  // const handleViewAgreementData = (gpId) => {
+  //   navigate(`/dashboard/viewAgreementRecord/${gpId}`);
+  // };
 
-  const handleViewMRData = (gpId) => {
-    navigate(`/mr-data/${gpId}`);
-  };
+  // const handleViewMRData = (gpId) => {
+  //   navigate(`/mr-data/${gpId}`);
+  // };
 
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
-      <Card>
+      <Card className="border border-gray-200 shadow-md">
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <div className="w-full px-6">
             {/* Gram Panchayat List Section */}
             {grampanchayats.length > 0 && (
               <div className="mt-8">
-                <Typography variant="h6" color="blue-gray" className="mb-4">
+                <Typography 
+                  variant="h6" 
+                  className="mb-4 text-lg font-semibold" 
+                  style={{ color: "#02557a" }}
+                >
                   Total Gram Panchayat Registrations
                 </Typography>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-max table-auto text-left">
                     <thead>
                       <tr>
-                        <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                          <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
-                          Gram Panchayat Name
+                        <th className="border-b p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                          <Typography 
+                            variant="small" 
+                            className="font-medium" 
+                            style={{ color: "#02557a" }}
+                          >
+                            Gram Panchayat Name
                           </Typography>
                         </th>
-                        <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                          <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
+                        <th className="border-b p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                          <Typography 
+                            variant="small" 
+                            className="font-medium" 
+                            style={{ color: "#02557a" }}
+                          >
                             GST No
                           </Typography>
                         </th>
-                        <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                          <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
+                        <th className="border-b p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                          <Typography 
+                            variant="small" 
+                            className="font-medium" 
+                            style={{ color: "#02557a" }}
+                          >
                             Mobile
                           </Typography>
                         </th>
-                        <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                          <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
+                        <th className="border-b p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                          <Typography 
+                            variant="small" 
+                            className="font-medium" 
+                            style={{ color: "#02557a" }}
+                          >
                             Location
                           </Typography>
                         </th>
-                        <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                          <Typography variant="small" color="blue-gray" className="font-normal leading-none opacity-70">
+                        <th className="border-b p-4" style={{ backgroundColor: "#f8f9fa" }}>
+                          <Typography 
+                            variant="small" 
+                            className="font-medium" 
+                            style={{ color: "#02557a" }}
+                          >
                             Actions
                           </Typography>
                         </th>
@@ -106,47 +151,50 @@ export function ExportAllData() {
                     </thead>
                     <tbody>
                       {grampanchayats.map((gp) => (
-                        <tr key={gp._id}>
-                          <td className="p-4">
-                            <Typography variant="small" color="blue-gray">
-                              {gp.name}
+                        <tr key={gp._id} className="hover:bg-gray-50">
+                          <td className="p-4 border-b border-gray-100">
+                            <Typography variant="small" className="text-gray-800 font-medium">
+                              {gp.grampanchayat}
                             </Typography>
                           </td>
-                          <td className="p-4">
-                            <Typography variant="small" color="blue-gray">
+                          <td className="p-4 border-b border-gray-100">
+                            <Typography variant="small" className="text-gray-700">
                               {gp.gstNo}
                             </Typography>
                           </td>
-                          <td className="p-4">
-                            <Typography variant="small" color="blue-gray">
+                          <td className="p-4 border-b border-gray-100">
+                            <Typography variant="small" className="text-gray-700">
                               {gp.gpMobileNumber}
                             </Typography>
                           </td>
-                          <td className="p-4">
-                            <Typography variant="small" color="blue-gray">
-                              {`${gp.village}, ${gp.tahsil}, ${gp.district}`}
+                          <td className="p-4 border-b border-gray-100">
+                            <Typography variant="small" className="text-gray-700">
+                              {`${gp.grampanchayat}, ${gp.tahsil}, ${gp.district}`}
                             </Typography>
                           </td>
-                          <td className="p-4">
-                            <div className="flex gap-2">
+                          <td className="p-4 border-b border-gray-100">
+                            <div className="flex flex-wrap gap-2">
                               <Button
-                                color="blue"
                                 size="sm"
+                                className="shadow-sm transition-all duration-200 hover:shadow-md disabled:cursor-not-allowed"
+                                style={exportLoading ? buttonStyles.loadingBtn : buttonStyles.exportDD}
                                 onClick={() => handleExportDeductions(gp._id)}
                                 disabled={exportLoading}
                               >
                                 {exportLoading ? "Exporting..." : "Export DD Data"}
                               </Button>
-                              <Button
-                                color="green"
+                              {/* <Button
                                 size="sm"
+                                className="shadow-sm transition-all duration-200 hover:shadow-md"
+                                style={buttonStyles.exportAgreement}
                                 onClick={() => handleViewAgreementData(gp._id)}
                               >
                                 Export Agreement Data
-                              </Button>
+                              </Button> */}
                               <Button
-                                color="purple"
                                 size="sm"
+                                className="shadow-sm transition-all duration-200 hover:shadow-md"
+                                style={buttonStyles.exportMR}
                                 onClick={() => handleViewMRData(gp._id)}
                               >
                                 Export MR Data

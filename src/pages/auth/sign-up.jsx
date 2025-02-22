@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
+import pitaxLogo from "../../../public/img/logo.jpg"
 import 'react-toastify/dist/ReactToastify.css';
 import {
   Card,
@@ -76,7 +77,7 @@ export function SignUp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex p-2">
+    <div className="min-h-screen bg-white flex p-2">
       <ToastContainer 
         position="top-right" 
         autoClose={4000} 
@@ -85,27 +86,38 @@ export function SignUp() {
         pauseOnHover 
       />
 
-      {/* Left side - Image */}
+      {/* Left side - Gradient Background */}
       <div className="hidden lg:block relative w-0 flex-1">
-        <div className="absolute inset-0">
-          <img
-            src="/img/pattern.png"
-            alt="Background pattern"
-            className="h-full w-full object-cover rounded-xl"
-          />
-          <div className="absolute inset-0 opacity-20 mix-blend-multiply rounded-l-3xl xl:rounded-l-[60px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ee792d] via-[#02557a] to-[#59b94f] rounded-l-3xl ">
+          <div className="absolute inset-0 flex items-center justify-center p-12">
+            {/* Your logo here - adjust width/height as needed */}
+            <img
+              src={pitaxLogo} 
+              alt="PITAX Logo"
+              className="max-w-xs w-full object-contain"
+            />
+          </div>
         </div>
       </div>
 
       {/* Right side - Sign-Up Form */}
-      <div className="flex-1 flex flex-col justify-center py-4  sm:px-6 lg:px-20 xl:px-24">
+      <div className="flex-1 flex flex-col justify-center py-4 sm:px-1 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-lg">
-          <div className="text-center mb-4">
+          {/* Logo for mobile view */}
+          <div className="flex justify-center mb-8 lg:hidden">
+            <img
+              src={pitaxLogo}
+              alt="PITAX Logo"
+              className="h-16 object-contain"
+            />
+          </div>
+          
+          <div className="text-center mb-6">
             <Typography variant="h1" className="text-4xl font-bold text-gray-900 mb-1">
-            Welcome to PITAX
+              Welcome to PITAX
             </Typography>
             <Typography variant="h4" className="text-xl text-gray-600 font-normal">
-              Register as a Admin
+              Register as an Admin
             </Typography>
           </div>
 
@@ -121,7 +133,7 @@ export function SignUp() {
                   placeholder="Enter your name"
                   value={formData.doctorName}
                   onChange={handleChange}
-                  className="!border-gray-300 focus:!border-gray-900"
+                  className="!border-gray-300 focus:!border-[#02557a]"
                   labelProps={{
                     className: "before:content-none after:content-none",
                   }}
@@ -138,7 +150,7 @@ export function SignUp() {
                   placeholder="Enter your Email"
                   value={formData.doctorEmailId}
                   onChange={handleChange}
-                  className="!border-gray-300 focus:!border-gray-900"
+                  className="!border-gray-300 focus:!border-[#02557a]"
                   labelProps={{
                     className: "before:content-none after:content-none",
                   }}
@@ -156,7 +168,7 @@ export function SignUp() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="!border-gray-300 focus:!border-gray-900"
+                  className="!border-gray-300 focus:!border-[#02557a]"
                   labelProps={{
                     className: "before:content-none after:content-none",
                   }}
@@ -174,39 +186,24 @@ export function SignUp() {
                   placeholder="Re-enter password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="!border-gray-300 focus:!border-gray-900"
+                  className="!border-gray-300 focus:!border-[#02557a]"
                   labelProps={{
                     className: "before:content-none after:content-none",
                   }}
                 />
               </div>
 
-              {/* <div className="space-y-2">
-                <Typography variant="small" className="text-gray-700 font-semibold">
-                  Profile Image (Optional)
-                </Typography>
-                <Input
-                  name="profileImage"
-                  type="file"
-                  size="lg"
-                  accept="image/*"
-                  onChange={handleChange}
-                  className="!border-gray-300 focus:!border-gray-900"
-                  labelProps={{
-                    className: "before:content-none after:content-none",
-                  }}
-                />
-              </div> */}
-
               <div className="flex items-center justify-between">
                 <Checkbox
                   name="termsAccepted"
                   checked={formData.termsAccepted}
                   onChange={handleChange}
+                  color="blue"
+                  className="checked:bg-[#02557a] checked:border-[#02557a]"
                   label={
                     <Typography variant="small" className="font-medium text-gray-700">
                       I agree to the{" "}
-                      <a href="#" className="text-blue-600 hover:text-blue-500 underline">
+                      <a href="#" className="text-[#ee792d] hover:text-[#d36620] underline">
                         Terms and Conditions
                       </a>
                     </Typography>
@@ -217,7 +214,7 @@ export function SignUp() {
 
               <Button
                 type="submit"
-                className="bg-gray-900 hover:bg-gray-800 transition-colors"
+                className="bg-gradient-to-r from-[#ee792d] to-[#02557a] hover:shadow-lg transition-all"
                 fullWidth
                 size="lg"
                 disabled={loading}
@@ -225,10 +222,12 @@ export function SignUp() {
                 {loading ? "Registering..." : "Register Now"}
               </Button>
 
-              <Typography variant="paragraph" className="text-center text-blue-gray-500 font-medium mt-4">
-            Already have an account?
-            <Link to="/auth/sign-in" className="text-gray-900 ml-1">Sign in</Link>
-          </Typography>
+              <Typography variant="paragraph" className="text-center text-gray-600 font-medium mt-4">
+                Already have an account?{" "}
+                <Link to="/auth/sign-in" className="text-[#02557a] hover:text-[#59b94f] transition-colors font-semibold ml-1">
+                  Sign in
+                </Link>
+              </Typography>
             </form>
           </Card>
         </div>

@@ -121,7 +121,7 @@ export function AddTehsilBlock() {
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
-        <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
+        <CardHeader variant="gradient" style={{ background: "linear-gradient(to right, #02557a, #59b94f)" }} className="mb-8 p-6">
           <Typography variant="h6" color="white">
             Tahsil Block Registration Form
           </Typography>
@@ -140,6 +140,7 @@ export function AddTehsilBlock() {
                   label="Tehsil Block State Name"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 <Input
@@ -150,6 +151,7 @@ export function AddTehsilBlock() {
                   label="Tehsil Block District Name"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 <Input
@@ -160,6 +162,7 @@ export function AddTehsilBlock() {
                   label="Tehsil Name"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 <Input
@@ -170,6 +173,7 @@ export function AddTehsilBlock() {
                   label="Tehsil staff Name"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 <Input
@@ -180,6 +184,7 @@ export function AddTehsilBlock() {
                   label="Tehsil Block Email"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 <Input
@@ -190,6 +195,7 @@ export function AddTehsilBlock() {
                   label="Tehsil Block Mobile Number"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 <Input
@@ -200,6 +206,7 @@ export function AddTehsilBlock() {
                   label="Tehsil Block Password"
                   required
                   className="w-full"
+                  style={{ color: "#02557a" }}
                 />
 
                 {/* Image Upload */}
@@ -210,6 +217,7 @@ export function AddTehsilBlock() {
                     onChange={handleFileChange}
                     accept="image/*"
                     className="w-full"
+                    style={{ color: "#02557a" }}
                   />
                   {imagePreview && (
                     <img 
@@ -226,12 +234,14 @@ export function AddTehsilBlock() {
                 <Button
                   variant="outlined"
                   onClick={handleCancel}
+                  style={{ borderColor: "#ee792d", color: "#ee792d" }}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={loading || isSubmitting}
+                  style={{ backgroundColor: "#59b94f", color: "white" }}
                 >
                   {(loading || isSubmitting) ? "Submitting..." : "Submit"}
                 </Button>
