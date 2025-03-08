@@ -1,280 +1,104 @@
 // ViewDeductionRecord.jsx
-import { Card, CardHeader, CardBody, Typography, Input, Button, Select, Option, Switch } from "@material-tailwind/react";
+import { Card, CardHeader, CardBody, Typography, Select, Option } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { createGSTEntry, createInsuranceEntry, createKamgarEntry, clearErrors, clearMessage, createITEntry, createRoyaltyEntry, getGSTEntries, getInsuranceEntries, getKamgarEntries, getITEntries, getRoyaltyEntries, updateGSTEntry, updateInsuranceEntry, updateKamgarEntry, updateITEntry, updateRoyaltyEntry } from "../../store/slices/challanSlice";
 import { useParams } from "react-router-dom";
 import { getGrampanchayatById } from "@/store/slices/grampanchayatSlice";
-import FileUploadComponent from "./Components/FileUploadByAdmin";
-import { updateGSTDocument, updateInsuranceDocument, updateITDocument, updateKaamgarDocument, updateRoyaltyDocument } from "@/store/slices/AdminUploadDDFile";
+import { getAllDeductions, clearAllPaymentDocumentErrors, clearPaymentDocumentMessage } from "../../store/slices/forAllDataAccesInOneFrameSlice";
 
 export function ViewDeductionRecord() {
-  const { loading, error, message, gstEntries, insuranceEntries, kamgarEntries, itEntries, royaltyEntries } = useSelector((state) => state.challan);
-  const { loading: uploadLoading, error: uploadError, message: uploadMessage } = useSelector((state) => state.adminUploadDDocuments);
-  const [formType, setFormType] = useState("");
+  const { loading, error, message, allDeductions, pagination, summary } = useSelector((state) => state.paymentDocuments);
   const { gpId } = useParams();
   const dispatch = useDispatch();
-  const { loading: grampanchayatLoading, singleGrampanchayat, error: grampanchayatError } = useSelector((state) => state.grampanchayat);
+  const { singleGrampanchayat } = useSelector((state) => state.grampanchayat);
+  
+  // Filtering and pagination state
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    gstNo: "",
+    paymentMode: "",
+    seenByAdmin: "",
+    sortBy: "date",
+    sortOrder: "desc"
+  });
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (gpId) {
       dispatch(getGrampanchayatById(gpId));
+      loadDeductions();
     }
-  }, [dispatch, gpId]);
+  }, [dispatch, gpId, currentPage]);
 
-  // Form States
-  const [gstData, setGstData] = useState({ date: "", gstPartyName: "", gstNo: "", amount: "", checkNo: "", pfmsDate: "" });
-  const [insuranceData, setInsuranceData] = useState({ date: "", amount: "", insuranceNo: "" });
-  const [kamgarData, setKamgarData] = useState({ date: "", amount: "" });
-  const [iTData, setITData] = useState({ date: "", partyName: "", pan: "", amount: "" });
-  const [royaltyData, setRoyaltyData] = useState({ date: "", amount: "" });
+  const loadDeductions = () => {
+    dispatch(getAllDeductions(gpId, filters, currentPage, 10));
+  };
 
-  // Centralized Toast Handling
+  // Handle filter changes
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Apply filters
+  const applyFilters = () => {
+    setCurrentPage(1);
+    loadDeductions();
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({
+      startDate: "",
+      endDate: "",
+      gstNo: "",
+      paymentMode: "",
+      seenByAdmin: "",
+      sortBy: "date",
+      sortOrder: "desc"
+    });
+    setCurrentPage(1);
+    dispatch(getAllDeductions(gpId, {}, 1, 10));
+  };
+
+  // Pagination handlers
+  const handlePrevPage = () => {
+    if (pagination.hasPrevPage) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pagination.hasNextPage) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  // Toast handling
   useEffect(() => {
     if (error) {
       toast.error(error);
-      dispatch(clearErrors());
-    }
-    if (uploadError) {
-      toast.error(uploadError);
-      dispatch(clearErrors()); // Clear adminUploadDDocuments errors
+      dispatch(clearAllPaymentDocumentErrors());
     }
     if (message) {
       toast.success(message);
-      dispatch(clearMessage());
-      handleReset();
+      dispatch(clearPaymentDocumentMessage());
     }
-    if (uploadMessage) {
-      toast.success(uploadMessage);
-      dispatch(clearMessage()); // Clear adminUploadDDocuments message
-    }
-  }, [error, uploadError, message, uploadMessage, dispatch]);
+  }, [error, message, dispatch]);
 
-  const handleStatusToggle = (entryId, currentStatus, entryType) => {
-    const updateData = { seenByAdmin: !currentStatus };
-    switch (entryType) {
-      case "gst": dispatch(updateGSTEntry(entryId, updateData)); break;
-      case "insurance": dispatch(updateInsuranceEntry(entryId, updateData)); break;
-      case "kamgar": dispatch(updateKamgarEntry(entryId, updateData)); break;
-      case "iT": dispatch(updateITEntry(entryId, updateData)); break;
-      case "royalty": dispatch(updateRoyaltyEntry(entryId, updateData)); break;
-      default: break;
-    }
-  };
-
-  // Event Handlers
-  const handleFormTypeChange = (value) => setFormType(value);
-  const handleGstChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setGstData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-  const handleInsuranceChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setInsuranceData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-  const handleKamgarChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setKamgarData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-  const handleITChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setITData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-  const handleRoyaltyChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setRoyaltyData((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
-  };
-
-  const validateForm = (data) => {
-    const requiredFields = Object.keys(data).filter(key => key !== 'fileUploaded' && key !== 'challanReceived' && key !== 'checkNo' && key !== 'pfmsDate');
-    for (let field of requiredFields) {
-      if (!data[field]) {
-        toast.error(`${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`);
-        return false;
-      }
-    }
-    return true;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    let formData;
-    let action;
-    switch (formType) {
-      case "gst":
-        formData = gstData;
-        action = createGSTEntry;
-        break;
-      case "insurance":
-        formData = insuranceData;
-        action = createInsuranceEntry;
-        break;
-      case "kamgar":
-        formData = kamgarData;
-        action = createKamgarEntry;
-        break;
-      case "iT":
-        formData = { ...iTData, grampanchayats: [gpId] };
-        action = createITEntry;
-        break;
-      case "royalty":
-        formData = { ...royaltyData, grampanchayats: [gpId] };
-        action = createRoyaltyEntry;
-        break;
-      default:
-        toast.error("Please select a form type");
-        return;
-    }
-    if (!validateForm(formData)) return;
-    dispatch(action(formData, gpId));
-  };
-
-  const handleReset = () => {
-    setGstData({ date: "", gstNo: "", amount: "", checkNo: "", pfmsDate: "", gstPartyName: "" });
-    setInsuranceData({ date: "", amount: "", insuranceNo: "" });
-    setKamgarData({ date: "", amount: "" });
-    setITData({ date: "", partyName: "", pan: "", amount: "" });
-    setRoyaltyData({ date: "", amount: "" });
-  };
-
-  useEffect(() => {
-    if (formType && gpId) {
-      switch (formType) {
-        case "gst": dispatch(getGSTEntries(gpId)); break;
-        case "insurance": dispatch(getInsuranceEntries(gpId)); break;
-        case "kamgar": dispatch(getKamgarEntries(gpId)); break;
-        case "iT": dispatch(getITEntries(gpId)); break;
-        case "royalty": dispatch(getRoyaltyEntries(gpId)); break;
-        default: break;
-      }
-    }
-  }, [formType, gpId, dispatch]);
-
-  const renderDataTable = () => {
-    let entries = [];
-    let columns = [];
-    let uploadHandler = null;
-    switch (formType) {
-      case "gst":
-        entries = gstEntries;
-        columns = ["Date", "Party Name", "GST No", "Amount", "Check No", "PFMS Date", "Status", "Document", "Upload Receipt"];
-        uploadHandler = updateGSTDocument;
-        break;
-      case "insurance":
-        entries = insuranceEntries;
-        columns = ["Date", "Amount", "Status", "Document", "Upload Receipt"];
-        uploadHandler = updateInsuranceDocument;
-        break;
-      case "kamgar":
-        entries = kamgarEntries;
-        columns = ["Date", "Amount", "Status", "Document", "Upload Receipt"];
-        uploadHandler = updateKaamgarDocument;
-        break;
-      case "iT":
-        entries = itEntries;
-        columns = ["Date", "Party Name", "PAN", "Amount", "Status", "Document", "Upload Receipt"];
-        uploadHandler = updateITDocument;
-        break;
-      case "royalty":
-        entries = royaltyEntries;
-        columns = ["Date", "Amount", "Status", "Document", "Upload Receipt"];
-        uploadHandler = updateRoyaltyDocument;
-        break;
-      default:
-        return null;
-    }
-    return (
-      <div className="mt-8 overflow-x-auto">
-        <Typography variant="h6" color="blue-gray" className="mb-4">
-          {formType.toUpperCase()} Entries
-        </Typography>
-        <table className="w-full min-w-max table-auto text-left">
-          <thead>
-            <tr>
-              {columns.map((header) => (
-                <th key={header} className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map((entry, index) => (
-              <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                <td className="p-4">{new Date(entry.date).toLocaleDateString()}</td>
-                {formType === "gst" && (
-                  <>
-                    <td className="p-4">{entry.gstPartyName}</td>
-                    <td className="p-4">{entry.gstNo}</td>
-                    <td className="p-4">₹{entry.amount}</td>
-                    <td className="p-4">{entry.checkNo || "-"}</td>
-                    <td className="p-4">{entry.pfmsDate ? new Date(entry.pfmsDate).toLocaleDateString() : "-"}</td>
-                  </>
-                )}
-                {formType === "insurance" && (
-                  <>
-                    <td className="p-4">₹{entry.amount}</td>
-                  </>
-                )}
-                {formType === "kamgar" && <td className="p-4">₹{entry.amount}</td>}
-                {formType === "iT" && (
-                  <>
-                    <td className="p-4">{entry.partyName}</td>
-                    <td className="p-4">{entry.pan}</td>
-                    <td className="p-4">₹{entry.amount}</td>
-                  </>
-                )}
-                {formType === "royalty" && <td className="p-4">₹{entry.amount}</td>}
-                <td className="p-4">
-                  <Switch
-                    checked={entry.seenByAdmin}
-                    onChange={() => handleStatusToggle(entry._id, entry.seenByAdmin, formType)}
-                    label={entry.seenByAdmin ? "Seen" : "Unseen"}
-                    color="green"
-                    className="h-full"
-                    containerProps={{
-                      className: "w-11 h-6",
-                    }}
-                    circleProps={{
-                      className: "before:bg-green-500",
-                    }}
-                  />
-                </td>
-                <td className="p-4">
-                  {entry.uploadDocumentbyAdmin && entry.uploadDocumentbyAdmin.url ? (
-                    <div className="flex flex-col space-y-2">
-                      <a
-                        href={entry.uploadDocumentbyAdmin.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 bg-[#02557a] text-white rounded hover:bg-[#023e59] transition text-center"
-                      >
-                        View Document
-                      </a>
-                      <p className="text-xs text-gray-500 truncate max-w-xs" title={entry.uploadDocumentbyAdmin.public_id}>
-                        ID: {entry.uploadDocumentbyAdmin.public_id?.substring(0, 15)}...
-                      </p>
-                    </div>
-                  ) : (
-                    <span className="text-gray-500">No document</span>
-                  )}
-                </td>
-                <td className="p-4">
-                  <FileUploadComponent
-                    onUpload={(id, formData) => dispatch(uploadHandler(id, formData))}
-                    fileId={entry._id}
-                    type={formType}
-                    hasExistingFile={!!entry.uploadDocumentbyAdmin?.url}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2
+    }).format(amount);
   };
 
   return (
@@ -282,17 +106,19 @@ export function ViewDeductionRecord() {
       <Card className="shadow-xl rounded-xl">
         <CardHeader variant="gradient" className="p-6 m-0 bg-[#02557a]">
           <Typography variant="h5" color="white" className="font-medium">
-            Deduction Data Entry Form
+            Deduction Records
           </Typography>
         </CardHeader>
-        {(loading || uploadLoading) && (
+        
+        {loading && (
           <div className="flex justify-center p-6">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#ee792d]"></div>
           </div>
         )}
+        
         {singleGrampanchayat && (
           <div className="bg-white shadow-md rounded-lg p-6 m-6 border border-gray-200">
-            <h1 className="text-[#02557a] font-bold mb-2">Add Deduction Type for Grampanchayat</h1>
+            <h1 className="text-[#02557a] font-bold mb-2">Grampanchayat Details</h1>
             <h2 className="text-2xl font-semibold text-[#ee792d] mb-3">{singleGrampanchayat.data.grampanchayat}</h2>
             <p className="text-gray-700 text-lg">
               <span className="font-medium text-[#02557a]">Location:</span>{" "}
@@ -306,33 +132,239 @@ export function ViewDeductionRecord() {
             </p>
           </div>
         )}
+        
         <CardBody className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="mb-8">
-              <Select
-                label="Select Deduction Type"
-                value={formType}
-                onChange={handleFormTypeChange}
-                className="border-gray-300 focus:border-[#59b94f]"
-                labelProps={{
-                  className: "text-[#02557a]",
-                }}
-                menuProps={{
-                  className: "border border-[#ee792d] bg-white",
-                }}
-                color="green"
-              >
-                <Option value="gst" className="hover:bg-gray-100">GST</Option>
-                <Option value="insurance" className="hover:bg-gray-100">Insurance</Option>
-                <Option value="kamgar" className="hover:bg-gray-100">Kamgar</Option>
-                <Option value="iT" className="hover:bg-gray-100">IT</Option>
-                <Option value="royalty" className="hover:bg-gray-100">Royalty</Option>
-              </Select>
+          {/* Filters */}
+          <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <h3 className="text-lg font-medium text-[#02557a] mb-3">Filter Deductions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={filters.startDate}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={filters.endDate}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label>
+                <input
+                  type="text"
+                  name="gstNo"
+                  value={filters.gstNo}
+                  onChange={handleFilterChange}
+                  placeholder="Search by GST No"
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Mode</label>
+                <select
+                  name="paymentMode"
+                  value={filters.paymentMode}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">All</option>
+                  <option value="online">Online</option>
+                  <option value="cheque">Cheque</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Seen Status</label>
+                <select
+                  name="seenByAdmin"
+                  value={filters.seenByAdmin}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">All</option>
+                  <option value="true">Seen</option>
+                  <option value="false">Unseen</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                <select
+                  name="sortBy"
+                  value={filters.sortBy}
+                  onChange={handleFilterChange}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                >
+                  <option value="date">Date</option>
+                  <option value="totalAmount">Amount</option>
+                </select>
+              </div>
             </div>
-          </form>
-          {formType && renderDataTable()}
+            <div className="mt-4 flex space-x-2">
+              <button
+                onClick={applyFilters}
+                className="px-4 py-2 bg-[#02557a] text-white rounded-md hover:bg-[#023e59] transition"
+              >
+                Apply Filters
+              </button>
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+          
+          {/* Summary Section */}
+          {summary && (
+            <div className="bg-white shadow-md rounded-lg p-4 mb-6 border border-gray-200">
+              <h3 className="text-lg font-medium text-[#02557a] mb-3">Summary</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="bg-blue-50 p-3 rounded-md">
+                  <p className="text-sm text-gray-600">Total GST</p>
+                  <p className="text-lg font-semibold">{formatCurrency(summary.totalGST)}</p>
+                </div>
+                <div className="bg-green-50 p-3 rounded-md">
+                  <p className="text-sm text-gray-600">Total Royalty</p>
+                  <p className="text-lg font-semibold">{formatCurrency(summary.totalRoyalty)}</p>
+                </div>
+                <div className="bg-purple-50 p-3 rounded-md">
+                  <p className="text-sm text-gray-600">Total IT</p>
+                  <p className="text-lg font-semibold">{formatCurrency(summary.totalIT)}</p>
+                </div>
+                <div className="bg-yellow-50 p-3 rounded-md">
+                  <p className="text-sm text-gray-600">Total Kamgaar</p>
+                  <p className="text-lg font-semibold">{formatCurrency(summary.totalKamgaar)}</p>
+                </div>
+                <div className="bg-red-50 p-3 rounded-md">
+                  <p className="text-sm text-gray-600">Total Insurance</p>
+                  <p className="text-lg font-semibold">{formatCurrency(summary.totalInsurance)}</p>
+                </div>
+                <div className="bg-gray-100 p-3 rounded-md">
+                  <p className="text-sm text-gray-600">Grand Total</p>
+                  <p className="text-lg font-semibold text-[#ee792d]">{formatCurrency(summary.grandTotal)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Deductions Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-max table-auto text-left">
+              <thead>
+                <tr>
+                  <th className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">Date</th>
+                  <th className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">GST No.</th>
+                  <th className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">Payment Mode</th>
+                  <th className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">Total Amount</th>
+                  <th className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">Status</th>
+                  <th className="border-b border-gray-200 bg-gray-50 p-4 text-black font-semibold">Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allDeductions && allDeductions.length > 0 ? (
+                  allDeductions.map((deduction, index) => (
+                    <tr key={deduction._id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                      <td className="p-4">{new Date(deduction.date).toLocaleDateString()}</td>
+                      <td className="p-4">{deduction.gstNo}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          deduction.paymentMode === 'online' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {deduction.paymentMode.charAt(0).toUpperCase() + deduction.paymentMode.slice(1)}
+                        </span>
+                      </td>
+                      <td className="p-4">{formatCurrency(deduction.totalAmount)}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          deduction.seenByAdmin ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {deduction.seenByAdmin ? 'Seen' : 'Unseen'}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <button
+                          onClick={() => {
+                            // This would typically open a modal with deduction details
+                            // For now, we'll just show an alert with basic info
+                            alert(`
+                              Deduction ID: ${deduction._id}
+                              GST Entries: ${deduction.gstEntries?.length || 0}
+                              Royalty Entries: ${deduction.royaltyEntries?.length || 0}
+                              IT Entries: ${deduction.itEntries?.length || 0}
+                              Kamgaar Entries: ${deduction.kamgaarEntries?.length || 0}
+                              Insurance Entries: ${deduction.insuranceEntries?.length || 0}
+                            `);
+                          }}
+                          className="px-3 py-1 bg-[#02557a] text-white rounded-md hover:bg-[#023e59] transition text-sm"
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="p-4 text-center text-gray-500">
+                      No deductions found. Try adjusting your filters.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Pagination */}
+          {pagination && pagination.total > 0 && (
+            <div className="flex justify-between items-center mt-6">
+              <div className="text-sm text-gray-700">
+                Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.limit + 1}</span> to{" "}
+                <span className="font-medium">
+                  {Math.min(pagination.currentPage * pagination.limit, pagination.total)}
+                </span>{" "}
+                of <span className="font-medium">{pagination.total}</span> results
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={handlePrevPage}
+                  disabled={!pagination.hasPrevPage}
+                  className={`px-3 py-1 rounded-md ${
+                    pagination.hasPrevPage
+                      ? "bg-[#02557a] text-white hover:bg-[#023e59]"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  } transition`}
+                >
+                  Previous
+                </button>
+                <span className="px-3 py-1 bg-gray-100 rounded-md">
+                  {pagination.currentPage} of {pagination.totalPages}
+                </span>
+                <button
+                  onClick={handleNextPage}
+                  disabled={!pagination.hasNextPage}
+                  className={`px-3 py-1 rounded-md ${
+                    pagination.hasNextPage
+                      ? "bg-[#02557a] text-white hover:bg-[#023e59]"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  } transition`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </CardBody>
       </Card>
+      
       <ToastContainer
         position="top-right"
         autoClose={5000}

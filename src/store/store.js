@@ -10,6 +10,9 @@ import agreementStatusReducer from './slices/agreementStetusSlice';
 import deductionsReducer from './slices/exportDeductionsDataSlice';
 import adminUploadDDocumentsReducer from './slices/AdminUploadDDFile';
 import forgotPasswordReducer from "./slices/forgotResetPasswordSlice";
+
+
+import paymentDocumentsReducer from "./slices/forAllDataAccesInOneFrameSlice";
 // import diagnosisReducer from "./slices/detailDiagnosisSlice";
 // import appointmentsReducer from "./slices/appointmentSlice";
 // import timelineReducer from "./slices/timelineSlice";
@@ -22,6 +25,8 @@ export const store = configureStore({
     doctor: doctorReducer,
     getAllData : getAllDataReducer,
     staff : staffReducer,
+
+    paymentDocuments : paymentDocumentsReducer,
 
     challan: challanReducer,
     grampanchayat: gramPanchayatReducer,
