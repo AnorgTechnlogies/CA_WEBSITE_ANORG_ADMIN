@@ -34,7 +34,8 @@ const paymentDocumentSlice = createSlice({
       seenByAdmin: "",
       sortBy: "date",
       sortOrder: "desc"
-    }
+    },
+    updateLoading: false
   },
   reducers: {
     // Get all deductions
@@ -53,6 +54,25 @@ const paymentDocumentSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
       state.allDeductions = [];
+    },
+    
+    // Update deduction status actions
+    updateDeductionRequest(state) {
+      state.updateLoading = true;
+      state.error = null;
+    },
+    updateDeductionSuccess(state, action) {
+      state.updateLoading = false;
+      state.message = action.payload.message;
+      
+      // Update the deduction in the list
+      state.allDeductions = state.allDeductions.map(deduction => 
+        deduction._id === action.payload.data._id ? action.payload.data : deduction
+      );
+    },
+    updateDeductionFailed(state, action) {
+      state.updateLoading = false;
+      state.error = action.payload;
     },
     
     // Update filter values
@@ -126,6 +146,41 @@ export const getAllDeductions = (grampanchayatId, filters = {}, page = 1, limit 
     dispatch(
       paymentDocumentSlice.actions.getAllDeductionsFailed(
         error.response?.data?.message || "Error fetching deductions!"
+      )
+    );
+    return null;
+  }
+};
+
+// Update deduction (Mark as seen and/or upload document)
+export const updateDeductionByAdmin = (deductionId, formData) => async (dispatch) => {
+  console.log("deductionId : ", deductionId);
+  console.log("formData : ", formData);
+  
+  try {
+    dispatch(paymentDocumentSlice.actions.updateDeductionRequest());
+    
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    };
+    
+    const response = await axios.put(
+      `${BASE_URL}/api/admin/updateDeductionByAdmin/${deductionId}`,
+      formData,
+      config
+    );
+    
+    dispatch(
+      paymentDocumentSlice.actions.updateDeductionSuccess(response.data)
+    );
+    
+    return response.data;
+  } catch (error) {
+    dispatch(
+      paymentDocumentSlice.actions.updateDeductionFailed(
+        error.response?.data?.message || "Error updating deduction!"
       )
     );
     return null;
